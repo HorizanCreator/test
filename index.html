@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>موقعي</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    background:linear-gradient(135deg,#1e1e2f,#2b2b45);
+    color:#fff;
+    font-family:'Segoe UI', Tahoma, sans-serif;
+    text-align:center;
+  }
+  h1 { font-size:2rem; margin-bottom:2rem; }
+
+  /* عدّل هذا التصميم كما تريد */
+  .visitor-box {
+    background:rgba(255,255,255,0.08);
+    padding:2rem 3rem;
+    border-radius:20px;
+    box-shadow:0 8px 30px rgba(0,0,0,0.3);
+  }
+  .visitor-box p {
+    font-size:1.1rem;
+    opacity:0.8;
+    margin-bottom:0.5rem;
+  }
+  .visitor-box span {
+    font-size:3.5rem;
+    font-weight:bold;
+    color:#4ade80;
+  }
+</style>
+</head>
+<body>
+
+  <h1>مرحباً بك في موقعي 👋</h1>
+
+  <div class="visitor-box">
+    <p>عدد الزوار</p>
+    <span id="counter">...</span>
+  </div>
+
+  <!-- مكتبات Firebase عبر CDN، بدون تثبيت أي شيء -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getDatabase,
+      ref,
+      runTransaction,
+      onValue
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    // =====================================================
+    // ضع هنا القيم التي نسختها من Firebase Console (الخطوة 4)
+    // =====================================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyCQjdUq-OWfd3rKdlX2pulWij0U-SfUfQc",
+      authDomain: "my-visitor-counter-71373.firebaseapp.com",
+      databaseURL: "https://my-visitor-counter-71373-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "my-visitor-counter-71373",
+      storageBucket: "my-visitor-counter-71373.firebasestorage.app",
+      messagingSenderId: "340292747534",
+      appId: "1:340292747534:web:c365127993791008df575f"
+    };
+
+    // تهيئة Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const counterRef = ref(db, "visitorCount");
+
+    // زيادة العداد بأمان (transaction تمنع تضارب الزوار المتزامنين)
+    runTransaction(counterRef, (currentValue) => {
+      return (currentValue || 0) + 1;
+    }).catch((error) => {
+      console.error("خطأ أثناء تحديث العداد:", error);
+      document.getElementById("counter").innerText = "—";
+    });
+
+    // عرض القيمة الحالية لحظياً (وتحديثها تلقائياً لو تغيرت)
+    onValue(counterRef, (snapshot) => {
+      const value = snapshot.val() || 0;
+      document.getElementById("counter").innerText = value;
+    });
+  </script>
+
+</body>
+</html>
